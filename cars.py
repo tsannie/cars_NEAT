@@ -3,7 +3,7 @@ import os
 
 from Class.Car import Car
 from Class.Map import Map
-from Class.Overlay import Overlay
+from Class.MapDesignTools import MapDesignTools
 
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
@@ -11,8 +11,8 @@ WINDOW_HEIGHT = 720
 
 def draw_level(screen, clock):
     dt = 0
-    level_map = Map()
-    overlay = Overlay((WINDOW_WIDTH, WINDOW_HEIGHT))
+    level_map = Map((WINDOW_WIDTH, WINDOW_HEIGHT))
+    map_design_tools = MapDesignTools((WINDOW_WIDTH, WINDOW_HEIGHT))
 
     while True:
         for event in pygame.event.get():
@@ -20,23 +20,45 @@ def draw_level(screen, clock):
                 pygame.quit()
                 exit()
 
-        if pygame.mouse.get_pressed()[0]:
-            pos = pygame.mouse.get_pos()
-            level_map.add_circle(pos[0], pos[1], 50)
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_1]:
+            map_design_tools.selection = 0
+        if keys[pygame.K_2]:
+            map_design_tools.selection = 1
+        if keys[pygame.K_3]:
+            map_design_tools.selection = 2
+        if keys[pygame.K_4]:
+            map_design_tools.selection = 3
+        if keys[pygame.K_5]:
+            map_design_tools.selection = 4
+        if keys[pygame.K_SPACE]:
+            if level_map.ready():
+                return level_map
 
-        screen.fill((0, 0, 0))
-
+        screen.fill((200, 200, 0))
         level_map.draw(screen)
-        overlay.draw_overlay(screen)
+        current_click = pygame.mouse.get_pressed()[0]
+        if current_click:
+            if map_design_tools.selection == 3:
+                level_map.setFlag(pygame.mouse.get_pos(), "start")
+            elif map_design_tools.selection == 4:
+                level_map.setFlag(pygame.mouse.get_pos(), "end")
+            else:
+                pos = pygame.mouse.get_pos()
+                level_map.add_circle(pos[0], pos[1], map_design_tools.getRadius())
+        else:
+            map_design_tools.draw(screen, level_map.start, level_map.end)
 
         pygame.display.flip()
         dt = clock.tick(60) / 1000
 
 
-def run_game(screen, clock):
+def run_game(screen, clock, level):
     dt = 0
 
-    car = Car(100, 100)
+    car = Car(level.start.x, level.start.y, 0)
+
+    pygame.mouse.set_visible(False)
 
     while True:
         for event in pygame.event.get():
@@ -44,7 +66,7 @@ def run_game(screen, clock):
                 pygame.quit()
                 exit()
 
-        screen.fill((250, 250, 250))
+        screen.fill((200, 200, 0))
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
@@ -56,7 +78,9 @@ def run_game(screen, clock):
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
             car.decelerate()
 
-        car.update(dt)
+        car.update(dt, level)
+
+        level.draw(screen)
         car.draw(screen)
 
         # print the speed of car on top left
@@ -73,5 +97,5 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
     pygame.display.set_caption("Cars")
     clock = pygame.time.Clock()
-    draw_level(screen, clock)
-    run_game(screen, clock)
+    level = draw_level(screen, clock)
+    run_game(screen, clock, level)
