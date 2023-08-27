@@ -33,6 +33,7 @@ def draw_level(screen, clock):
             map_design_tools.selection = 4
         if keys[pygame.K_SPACE]:
             if level_map.ready():
+                level_map.compute_mask()
                 return level_map
 
         screen.fill((200, 200, 0))
@@ -82,6 +83,9 @@ def run_game(screen, clock, level):
 
         level.draw(screen)
         car.draw(screen)
+
+        car.update_distance(level)
+        car.draw_distance(screen)
 
         # print the speed of car on top left
         font = pygame.font.SysFont("Arial", 20)

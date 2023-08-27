@@ -22,6 +22,7 @@ class Car:
         self.speed = 0
         self.turn = 0
         self.image = pygame.transform.scale(ASSET, (WIDTH, HEIGHT))
+        self.distance = []
 
     def turn_left(self):
         # if abs(self.speed) > MIN_TURN_SPEED_THRESHOLD:
@@ -38,7 +39,6 @@ class Car:
         self.speed = max(self.speed - DECELERATION, MAX_REVERSE_SPEED)
 
     def get_mask(self):
-        # return hitbox of car
         rotated_image = pygame.transform.rotate(self.image, -self.angle * 180 / math.pi)
         return pygame.mask.from_surface(rotated_image)
 
@@ -53,38 +53,39 @@ class Car:
         self.speed *= FRICTION
 
         if level.collide(self):
-            self.speed = 0
+            self.speed = -self.speed * 0.5
             self.x = prev_x
             self.y = prev_y
             self.angle = prev_angle
 
         self.turn = 0
 
+    def get_point_with_distance(self, distance, angle):
+        x = self.x + math.cos(angle) * distance
+        y = self.y + math.sin(angle) * distance
+        return x, y
+
+    def compute_distance_angle(self, level, angle):
+        # get the distance between the car and the wall
+        distance = 0
+        while distance < 2000:
+            distance += 1
+            x, y = self.get_point_with_distance(distance, angle)
+            if level.collide_point(x, y):
+                return distance
+
+    def update_distance(self, level):
+        self.distance = []
+        for angle in range(0, 360, 10):
+            self.distance.append(self.compute_distance_angle(level, angle))
+
+    def draw_distance(self, screen):
+        for angle in range(0, 360, 10):
+            distance = self.distance[angle // 10]
+            x, y = self.get_point_with_distance(distance, angle)
+            pygame.draw.line(screen, (255, 0, 0), (self.x, self.y), (x, y))
+
     def draw(self, screen):
         rotated_image = pygame.transform.rotate(self.image, -self.angle * 180 / math.pi)
         rect = rotated_image.get_rect()
         screen.blit(rotated_image, (self.x - rect.width / 2, self.y - rect.height / 2))
-
-        # bullet
-
-
-"""         pos = pygame.mouse.get_pos()
-        bullet = pygame.Surface((10, 10)) """
-
-
-"""         # check if bullet collide with car
-        if self.get_mask().overlap(
-            pygame.mask.from_surface(bullet),
-            (pos[0] - (self.x - rect.width / 2), pos[1] - (self.y - rect.height / 2)),
-        ):
-            bullet.fill((0, 255, 0))
-        else:
-            bullet.fill((255, 0, 0))
-
-        # draw mask img with good
-        screen.blit(
-            self.get_mask().to_surface(),
-            (self.x - rect.width / 2, self.y - rect.height / 2),
-        )
-
-        screen.blit(bullet, (pos[0], pos[1])) """

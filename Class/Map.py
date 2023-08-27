@@ -2,8 +2,9 @@ import pygame
 
 from Class.Flag import Flag
 
-COLOR = (240, 0, 240)
-COLOR_FILL = (10, 10, 10)
+COLOR = (57, 89, 65)
+COLOR_FILL = (155, 191, 188)
+COLOR_UNBREAKABLE = (0, 0, 0)
 
 
 class Map:
@@ -11,8 +12,13 @@ class Map:
         self.surface = pygame.Surface(size_screen)
         self.surface.fill(COLOR_FILL)
 
+        # draw the border
+        self.border = pygame.Rect(0, 0, size_screen[0], size_screen[1])
+
         self.start = None
         self.end = None
+
+        self.mask = None
 
     def setFlag(self, pos, type_flag):
         if type_flag == "start":
@@ -27,8 +33,14 @@ class Map:
     def ready(self):
         return self.start and self.end
 
+    def compute_mask(self):
+        # draw the border
+        pygame.draw.rect(self.surface, COLOR_FILL, self.border, 1)
+
+        self.mask = self.get_mask()
+
     def collide(self, car):
-        mask_map = self.get_mask()
+        mask_map = self.mask
         mask_car = car.get_mask()
 
         if mask_map.overlap(
@@ -41,21 +53,22 @@ class Map:
             return True
         return False
 
+    def collide_point(self, x, y):
+        mask_map = self.mask
+
+        if not self.border.collidepoint(x, y):
+            return True
+
+        if mask_map.get_at((int(x), int(y))):
+            return True
+        return False
+
     def get_mask(self):
         return pygame.mask.from_threshold(self.surface, COLOR_FILL, (1, 1, 1, 255))
 
     def draw(self, screen):
-        # mask = self.get_mask()
-        # screen.blit(mask.to_surface(), (0, 0))
         screen.blit(self.surface, (0, 0))
         if self.start:
             self.start.draw(screen)
         if self.end:
             self.end.draw(screen)
-
-        # draw self.get_mask().to_surface() with good
-        # mask = self.get_mask()
-        # change color to red
-        # screen.blit(mask.to_surface(), (0, 0))
-
-    # screen.blit(self.get_mask().to_surface(), (0, 0))
