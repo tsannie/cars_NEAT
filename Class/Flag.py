@@ -30,7 +30,7 @@ class Flag:
     def compute_mask(self):
         self.mask = pygame.mask.from_surface(self.image)
 
-    def collide(self, car, screen):
+    def collide(self, car):
         mask_flag = self.mask
         mask_car = car.get_mask()
 

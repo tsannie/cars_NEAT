@@ -74,7 +74,3 @@ class Map:
             self.start.draw(screen)
         if self.end:
             self.end.draw(screen)
-
-    def update(self, car, screen):
-        if self.end.collide(car, screen):
-            car.finished = True

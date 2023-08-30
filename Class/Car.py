@@ -61,6 +61,9 @@ class Car:
 
         self.turn = 0
 
+        if level.end.collide(self):
+            self.finished = True
+
     def get_point_with_distance(self, distance, angle):
         x = self.x + math.cos(angle) * distance
         y = self.y + math.sin(angle) * distance

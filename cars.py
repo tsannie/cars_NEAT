@@ -1,5 +1,6 @@
 import pygame
 import os
+import neat
 
 from Class.Car import Car
 from Class.Map import Map
@@ -7,6 +8,8 @@ from Class.MapDesignTools import MapDesignTools
 
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
+
+PATH_NEAT_CONFIG = "neat_config"
 
 
 def draw_level(screen, clock):
@@ -86,7 +89,6 @@ def run_game(screen, clock, level):
 
         level.draw(screen)
         car.draw(screen)
-        level.update(car, screen)
 
         distances = car.get_distances(level, screen)
 
@@ -107,10 +109,108 @@ def run_game(screen, clock, level):
         dt = clock.tick(60) / 1000
 
 
-if __name__ == "__main__":
+def eval_genomes_with_level(level):
+    def eval_genomes(genomes, config):
+        dt = 0
+        ge = []
+        nets = []
+        cars = []
+
+        for _, g in genomes:
+            net = neat.nn.FeedForwardNetwork.create(g, config)
+            nets.append(net)
+            cars.append(Car(level.start.x, level.start.y, 0))
+            g.fitness = 0
+            ge.append(g)
+
+        screen, clock = init_pygame()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+
+            screen.fill((200, 0, 200))
+
+            # TODO CHECK IF ALL CARS ARE FINISHED
+
+            for car in cars:
+                car.update(dt, level)
+
+            level.draw(screen)
+            for car in cars:
+                car.draw(screen)
+
+            for i, car in enumerate(cars):
+                distances = car.get_distances(level, screen)
+                outputs = nets[i].activate(
+                    (
+                        distances[0],
+                        distances[1],
+                        distances[2],
+                        distances[3],
+                        distances[4],
+                        car.speed,
+                    )
+                )
+
+                if outputs[0] > 0.5:
+                    car.turn_left()
+                if outputs[1] > 0.5:
+                    car.turn_right()
+                if outputs[2] > 0.5:
+                    car.accelerate()
+                if outputs[3] > 0.5:
+                    car.decelerate()
+
+            pygame.display.flip()
+            dt = clock.tick(60) / 1000
+
+        pygame.quit()
+
+    return eval_genomes
+
+
+def init_neat(path, level):
+    config = neat.config.Config(
+        neat.DefaultGenome,
+        neat.DefaultReproduction,
+        neat.DefaultSpeciesSet,
+        neat.DefaultStagnation,
+        path,
+    )
+
+    p = neat.Population(config)
+
+    p.add_reporter(neat.StdOutReporter(True))
+    stats = neat.StatisticsReporter()
+    p.add_reporter(stats)
+
+    eval_func = eval_genomes_with_level(level)
+    p.run(eval_func, 100)
+
+
+def init_pygame():
     pygame.init()
     screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
     pygame.display.set_caption("Cars")
     clock = pygame.time.Clock()
-    level = draw_level(screen, clock)
-    run_game(screen, clock, level)
+    return screen, clock
+
+
+if __name__ == "__main__":
+    if True:
+        # close screen
+        local_dir = os.path.dirname(__file__)
+        config_path = os.path.join(local_dir, PATH_NEAT_CONFIG)
+
+        screen, clock = init_pygame()
+        level = draw_level(screen, clock)
+        pygame.quit()
+
+        init_neat(config_path, level)
+    else:
+        screen, clock = init_pygame()
+        level = draw_level(screen, clock)
+        run_game(screen, clock, level)
