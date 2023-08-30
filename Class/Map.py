@@ -38,6 +38,8 @@ class Map:
         pygame.draw.rect(self.surface, COLOR_FILL, self.border, 1)
 
         self.mask = self.get_mask()
+        self.start.compute_mask()
+        self.end.compute_mask()
 
     def collide(self, car):
         mask_map = self.mask
@@ -72,3 +74,7 @@ class Map:
             self.start.draw(screen)
         if self.end:
             self.end.draw(screen)
+
+    def update(self, car, screen):
+        if self.end.collide(car, screen):
+            car.finished = True

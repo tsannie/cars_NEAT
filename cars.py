@@ -69,6 +69,9 @@ def run_game(screen, clock, level):
 
         screen.fill((200, 200, 0))
 
+        if car.finished:
+            break
+
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
             car.turn_left()
@@ -83,14 +86,22 @@ def run_game(screen, clock, level):
 
         level.draw(screen)
         car.draw(screen)
+        level.update(car, screen)
 
-        car.update_distance(level)
-        car.draw_distance(screen)
+        distances = car.get_distances(level, screen)
 
         # print the speed of car on top left
         font = pygame.font.SysFont("Arial", 20)
         text = font.render("Speed: {:.2f}".format(car.speed), True, (0, 0, 0))
         screen.blit(text, (10, 10))
+
+        for distance in distances:
+            text = font.render(
+                "Distance {}: {:.2f}".format(distances.index(distance) + 1, distance),
+                True,
+                (0, 0, 0),
+            )
+            screen.blit(text, (10, 10 + 20 * (distances.index(distance) + 1)))
 
         pygame.display.flip()
         dt = clock.tick(60) / 1000

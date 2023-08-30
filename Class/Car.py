@@ -23,6 +23,7 @@ class Car:
         self.turn = 0
         self.image = pygame.transform.scale(ASSET, (WIDTH, HEIGHT))
         self.distance = []
+        self.finished = False
 
     def turn_left(self):
         # if abs(self.speed) > MIN_TURN_SPEED_THRESHOLD:
@@ -72,18 +73,18 @@ class Car:
             distance += 1
             x, y = self.get_point_with_distance(distance, angle)
             if level.collide_point(x, y):
-                return distance
+                return distance, x, y
 
-    def update_distance(self, level):
+    def get_distances(self, level, screen):
         self.distance = []
-        for angle in range(0, 360, 10):
-            self.distance.append(self.compute_distance_angle(level, angle))
+        for angle in range(-2, 3):
+            distance, x, y = self.compute_distance_angle(
+                level, self.angle + angle * 0.5
+            )
+            self.distance.append((distance))
+            pygame.draw.line(screen, (0, 0, 170), (self.x, self.y), (x, y), 1)
 
-    def draw_distance(self, screen):
-        for angle in range(0, 360, 10):
-            distance = self.distance[angle // 10]
-            x, y = self.get_point_with_distance(distance, angle)
-            pygame.draw.line(screen, (255, 0, 0), (self.x, self.y), (x, y))
+        return self.distance
 
     def draw(self, screen):
         rotated_image = pygame.transform.rotate(self.image, -self.angle * 180 / math.pi)
