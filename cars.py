@@ -11,6 +11,8 @@ WINDOW_HEIGHT = 720
 
 PATH_NEAT_CONFIG = "neat_config"
 
+best_time = 0
+
 
 def draw_level(screen, clock):
     dt = 0
@@ -110,6 +112,8 @@ def run_game(screen, clock, level):
 
 
 def eval_genomes_with_level(level):
+    screen, clock = init_pygame()
+
     def eval_genomes(genomes, config):
         dt = 0
         ge = []
@@ -123,7 +127,12 @@ def eval_genomes_with_level(level):
             g.fitness = 0
             ge.append(g)
 
-        screen, clock = init_pygame()
+        timer = 0
+        global best_time
+
+        time_per_generation = 10
+        font1 = pygame.font.SysFont("Arial", 50)
+        font2 = pygame.font.SysFont("Arial", 30)
 
         while True:
             for event in pygame.event.get():
@@ -134,15 +143,53 @@ def eval_genomes_with_level(level):
             screen.fill((200, 0, 200))
 
             # TODO CHECK IF ALL CARS ARE FINISHED
+            if all(car.finished for car in cars):
+                break
 
             for car in cars:
                 car.update(dt, level)
 
             level.draw(screen)
+
             for car in cars:
                 car.draw(screen)
 
+            time_text = font1.render(
+                "{:.2f}".format(time_per_generation - timer), True, (240, 240, 240)
+            )
+            screen.blit(time_text, (WINDOW_WIDTH / 2 - 10, 10))
+
+            if best_time:
+                best_time_text = font2.render(
+                    "Best time: {:.4f}".format(best_time), True, (240, 240, 240)
+                )
+                # on top left
+                screen.blit(best_time_text, (10, 10))
+
             for i, car in enumerate(cars):
+                # if car is finished, give it a bonus
+                if car.finished:
+                    ge[i].fitness += 1000
+                    if timer < best_time or best_time == 0:
+                        best_time = timer
+                        ge[i].fitness += 500
+                    return
+
+                # more close of end
+                ge[i].fitness += 1 / (
+                    abs(car.x - level.end.x) + abs(car.y - level.end.y)
+                )
+                # if car collide give malus
+                if car.speed == 0:
+                    ge[i].fitness -= 10
+
+                if car.collided:
+                    ge[i].fitness -= 100
+                    # remove car
+                    cars.pop(i)
+                    if len(cars) == 0:
+                        return
+
                 distances = car.get_distances(level, screen)
                 outputs = nets[i].activate(
                     (
@@ -164,10 +211,13 @@ def eval_genomes_with_level(level):
                 if outputs[3] > 0.5:
                     car.decelerate()
 
+            # incr timer
+            timer += dt
+            if timer > time_per_generation:
+                return
+
             pygame.display.flip()
             dt = clock.tick(60) / 1000
-
-        pygame.quit()
 
     return eval_genomes
 
@@ -189,6 +239,8 @@ def init_neat(path, level):
 
     eval_func = eval_genomes_with_level(level)
     p.run(eval_func, 100)
+
+    pygame.quit()
 
 
 def init_pygame():

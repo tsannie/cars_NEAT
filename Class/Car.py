@@ -24,6 +24,7 @@ class Car:
         self.image = pygame.transform.scale(ASSET, (WIDTH, HEIGHT))
         self.distance = []
         self.finished = False
+        self.collided = False
 
     def turn_left(self):
         # if abs(self.speed) > MIN_TURN_SPEED_THRESHOLD:
@@ -44,20 +45,20 @@ class Car:
         return pygame.mask.from_surface(rotated_image)
 
     def update(self, dt, level):
-        prev_x = self.x
-        prev_y = self.y
-        prev_angle = self.angle
-
         self.x += math.cos(self.angle) * self.speed * dt
         self.y += math.sin(self.angle) * self.speed * dt
         self.angle += self.turn * dt
         self.speed *= FRICTION
+        self.collided = False
 
         if level.collide(self):
-            self.speed = -self.speed * 0.5
-            self.x = prev_x
-            self.y = prev_y
-            self.angle = prev_angle
+            self.speed = 0
+            # respawn the car
+            self.x = level.start.x
+            self.y = level.start.y
+            self.angle = 0
+
+            self.collided = True
 
         self.turn = 0
 
@@ -85,11 +86,11 @@ class Car:
                 level, self.angle + angle * 0.5
             )
             self.distance.append((distance))
-            pygame.draw.line(screen, (0, 0, 170), (self.x, self.y), (x, y), 1)
+            # pygame.draw.line(screen, (0, 0, 170), (self.x, self.y), (x, y), 1)
 
         return self.distance
 
-    def draw(self, screen):
+    def draw(self, screen, best=False):
         rotated_image = pygame.transform.rotate(self.image, -self.angle * 180 / math.pi)
         rect = rotated_image.get_rect()
         screen.blit(rotated_image, (self.x - rect.width / 2, self.y - rect.height / 2))
