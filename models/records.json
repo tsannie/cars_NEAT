@@ -1,0 +1,122 @@
+{
+ "curvy": {
+  "by": "ai",
+  "date": "2026-08-25",
+  "detail": "gen 147",
+  "lap": 7.9235,
+  "length": 2434.8,
+  "physics": {
+   "accel": 170.0,
+   "brake": 520.0,
+   "brake_grip": 380.0,
+   "drag": 0.15,
+   "max_grip": 300.0,
+   "max_speed": 400.0,
+   "ray_range": 450.0,
+   "rays": 11,
+   "turn_rate": 3.4,
+   "turn_speed_ref": 110.0
+  },
+  "track": "9b59e9493623"
+ },
+ "endurance": {
+  "by": "ai",
+  "date": "2026-08-25",
+  "detail": "gen 147",
+  "lap": 35.0295,
+  "length": 12431.4,
+  "physics": {
+   "accel": 170.0,
+   "brake": 520.0,
+   "brake_grip": 380.0,
+   "drag": 0.15,
+   "max_grip": 300.0,
+   "max_speed": 400.0,
+   "ray_range": 450.0,
+   "rays": 11,
+   "turn_rate": 3.4,
+   "turn_speed_ref": 110.0
+  },
+  "track": "0b7324952354"
+ },
+ "grand_prix": {
+  "by": "ai",
+  "date": "2026-08-25",
+  "detail": "gen 74",
+  "lap": 9.2467,
+  "length": 3062.1,
+  "physics": {
+   "accel": 170.0,
+   "brake": 520.0,
+   "brake_grip": 380.0,
+   "drag": 0.15,
+   "max_grip": 300.0,
+   "max_speed": 400.0,
+   "ray_range": 450.0,
+   "rays": 11,
+   "turn_rate": 3.4,
+   "turn_speed_ref": 110.0
+  },
+  "track": "1dfe5375e93d"
+ },
+ "oval": {
+  "by": "ai",
+  "date": "2026-08-25",
+  "detail": "gen 147",
+  "lap": 7.2155,
+  "length": 2303.6,
+  "physics": {
+   "accel": 170.0,
+   "brake": 520.0,
+   "brake_grip": 380.0,
+   "drag": 0.15,
+   "max_grip": 300.0,
+   "max_speed": 400.0,
+   "ray_range": 450.0,
+   "rays": 11,
+   "turn_rate": 3.4,
+   "turn_speed_ref": 110.0
+  },
+  "track": "17b2efb7ec48"
+ },
+ "yolo": {
+  "by": "ai",
+  "date": "2026-08-25",
+  "detail": "gen 147",
+  "lap": 26.1659,
+  "length": 8215.5,
+  "physics": {
+   "accel": 170.0,
+   "brake": 520.0,
+   "brake_grip": 380.0,
+   "drag": 0.15,
+   "max_grip": 300.0,
+   "max_speed": 400.0,
+   "ray_range": 450.0,
+   "rays": 11,
+   "turn_rate": 3.4,
+   "turn_speed_ref": 110.0
+  },
+  "track": "d7ac150a699a"
+ },
+ "yolo2": {
+  "by": "ai",
+  "date": "2026-08-25",
+  "detail": "gen 150",
+  "lap": 20.277,
+  "length": 6906.5,
+  "physics": {
+   "accel": 170.0,
+   "brake": 520.0,
+   "brake_grip": 380.0,
+   "drag": 0.15,
+   "max_grip": 300.0,
+   "max_speed": 400.0,
+   "ray_range": 450.0,
+   "rays": 11,
+   "turn_rate": 3.4,
+   "turn_speed_ref": 110.0
+  },
+  "track": "1196830e7299"
+ }
+}
